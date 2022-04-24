@@ -138,3 +138,48 @@ import { ReactComponent as CrwnLogo } from "../../assets/crown.svg";
 - \*를 이용한다거나, 전체 a태그에 스타일링을 하고 싶을 때, index.css에 써주자.
 - 이외에도 디폴트 스타일링은 index.css에 써주자.
 - 물론 다른 css 파일에 써도 되지만 작동은 하나, 의미적으로 봤을 때 디폴트 스타일링은 index.css에 써주는게 맞다.
+
+# 인증 + firebase
+
+## firebase
+
+- 구글이 제공하는 데이터베이스 관련 서비스
+- 공식 사이트에서 프로젝트를 만들어야 함
+- yarn add firebase로 설치
+
+## 인증
+
+### CRUD
+
+- Create - 데이터 생성
+- Read - 데이터 읽기
+- Update - 데이터 업데이트하기
+- Delete - 데이터 제거하기
+
+### 구글계정을 이용한 로그인 과정
+
+1. 구글 로그인을 하고, auth token을 받아옴.
+2. 로그인시 서버에 구글에게 받은 auth token을 전달함.
+3. 서버는 구글에게 auth token을 전달하여 해당 auth token이 유효한 값인지 확인함.
+4. 확인후 서버는 클라이언트에게 access token을 보내줌.
+5. 클라이언트가 access token과 특정 명령(read, delete등)을 서버에 보냄.
+6. 서버는 해당 access token이 명령에 대한 권한을 가지고 있는지 확인 후, 해당 명령 실행
+
+## firestore 구조
+
+기본적으로, schemaless라고 하는데, 사실상 json이라고 생각하면 될 것 같다.
+
+- collection
+  - 폴더
+  - ex) Shoes
+- document
+  - 파일 이름
+  - unique string
+  - ex) NikeAirMax, AdidasNMD
+- data
+  - document 내부의 실제 데이터
+  - json이라고 생각하자.
+
+## firebase 이용
+
+- [소스코드](../src/util/firebase/firebase.js)로 보자.
