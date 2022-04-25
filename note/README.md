@@ -273,6 +273,11 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
 
 - 성공적으로 로그인을 마치면, 여러 정보를 받을 수 있는데, access token이 그중 하나이다.
 
+### sign out(로그아웃)
+
+- `signOut(auth)`
+- 반환값은 없다. (Promise를 반환)
+
 ## 생각할 점
 
 - firebase에 종속적인 메서드들을 억지로 외우기보단, 원리를 이해하자.
@@ -284,3 +289,25 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
 - firebase같은 서비스 추상화하여 일종의 인터페이스로 만들기
 - form 필드의 value를 state에 저장하고, 그 state를 기준으로 form 필드를 렌더링 하는 것.
 - button같은 기본적인 컴포넌트를 만들고, props로 타입을 받아 스타일링 적용하기(클래스 이용).
+
+# 상태관리를 위한 React Context
+
+- SignIn 컴포넌트에서 얻은 유저 정보를 다른 컴포넌트(세팅, 주문 내역 등)에서 사용하려면?
+- App(최상위) 컴포넌트에 유저 정보를 얻는 함수를 작성하고, SignIn까지 콜백으로 전달.
+- 다른 유저 정보를 필요로하는 컴포넌트에 props에 내려주면 가능하긴 하다.
+- 그런데 유저 정보를 필요로 하지 않는 컴포넌트까지 props로 유저 정보를 받아야함 = props drilling
+- 그냥 모든 컴포넌트에서 접근가능한 전역적인 외부 저장소를 하나 만들면 어떨까? -> Context
+
+## 사용법
+
+- [소스코드](../src/Contexts/User.jsx)
+- createContext를 이용해 저장하고자 하는 값을 생성
+- Provider로 감싼 자식 컴포넌트들에서 useContext를 이용해 값에 접근 가능
+- useContext와 useState는 비슷하게 동작하는데, setter로 데이터를 바꾸면, 해당 데이터를 이용하는 컴포넌트가 다시 렌더링된다.
+- 이 앱에선 index.js에서 App을 provider로 감쌌음
+- 단순히 값만 저장할 수 있는게 아니라, 컴포넌트이기 때문에, 다양한 동작을 구현할 수 있다.
+
+# firebase 옵저버 패턴
+
+- `onAuthStateChanged(auth, callback)`으로 firebase에서 auth에 대한 옵저버 패턴을 사용할 수 있다.
+- 이를 이용해 auth관련된 로직을 UserContext에 몰아줘 깔끔한 관심사 분리를 할 수 있다.

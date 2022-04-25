@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -48,7 +48,7 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
         ...additionalInformation,
       });
     } catch (error) {
-      console.log('error creating the user', error.message);
+      console.log("error creating the user", error.message);
     }
   }
 
@@ -60,10 +60,20 @@ export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
 
   return await createUserWithEmailAndPassword(auth, email, password);
-}
+};
 
 export const signInAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
 
   return await signInWithEmailAndPassword(auth, email, password);
+};
+
+// 로그아웃
+export const signOutUser = async () => {
+  return await signOut(auth);
+}
+
+// auth 상태가 바뀔 때 호출할 callback을 등록할 수 있다.
+export const onAuthStateChangedListener = (callback) => {
+  onAuthStateChanged(auth, callback);
 }
