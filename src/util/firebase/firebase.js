@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -25,9 +25,10 @@ export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider)
 
 export const db = getFirestore();
 
-export async function createUserDocumentFromAuth(userAuth) {
+export async function createUserDocumentFromAuth(userAuth, additionalInformation = {}) {
+  if (!userAuth) return;
   // google 팝업으로 부터 auth를 받아옴
-  // auth에 있는 user에 있는 uid(unique id)를 document 이름으로 이용하자.
+  // auth에 있는 user에 있는 uid(user identifier, unique id)를 document 이름으로 이용하자.
   // doc은 document 포인터라고 생각하자.
   const userDocRef = doc(db, "users", userAuth.uid);
   // userDocRef를 이용하면 해당 document에 읽기, 쓰기등을 할 수 있다.
@@ -44,6 +45,7 @@ export async function createUserDocumentFromAuth(userAuth) {
         displayName,
         email,
         createdDate,
+        ...additionalInformation,
       });
     } catch (error) {
       console.log('error creating the user', error.message);
@@ -51,4 +53,17 @@ export async function createUserDocumentFromAuth(userAuth) {
   }
 
   return userDocRef;
+}
+
+// email과 password를 이용해 user를 생성하고 로그인할 수 있다.
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+
+  return await createUserWithEmailAndPassword(auth, email, password);
+}
+
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+
+  return await signInWithEmailAndPassword(auth, email, password);
 }

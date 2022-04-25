@@ -147,7 +147,7 @@ import { ReactComponent as CrwnLogo } from "../../assets/crown.svg";
 - 공식 사이트에서 프로젝트를 만들어야 함
 - yarn add firebase로 설치
 
-## 인증
+## firebase를 이용한 인증, 회원가입, 로그인
 
 ### CRUD
 
@@ -165,7 +165,7 @@ import { ReactComponent as CrwnLogo } from "../../assets/crown.svg";
 5. 클라이언트가 access token과 특정 명령(read, delete등)을 서버에 보냄.
 6. 서버는 해당 access token이 명령에 대한 권한을 가지고 있는지 확인 후, 해당 명령 실행
 
-## firestore 구조
+### firestore 구조
 
 기본적으로, schemaless라고 하는데, 사실상 json이라고 생각하면 될 것 같다.
 
@@ -180,6 +180,107 @@ import { ReactComponent as CrwnLogo } from "../../assets/crown.svg";
   - document 내부의 실제 데이터
   - json이라고 생각하자.
 
-## firebase 이용
+### firebase 이용
 
 - [소스코드](../src/util/firebase/firebase.js)로 보자.
+- firebase에서 제공하는 auth나 firestore같은 기능들을 firestore.js로 추상화함.
+- 이렇게 함으로써 내 앱 상황에 맞게 커스텀해서 사용이 가능하며, firebase의 어떤 기능의 사용법이 바뀌더라도 firebase.js만 수정하게될 확률이 높다.
+- 앞으로 firebase의 데이터의 접근한다거나 하는 동작은 거의 모두 비동기 함수임을 유의하자.
+
+### sign up(회원가입)
+
+- firebase authentication에서 sign in method(구글, 페이스북, 이메일 등)을 설정하자.
+- 인증을 생성하는 방법은 크게 3가지가 있다(더 있지만 강의에서 배운것만)
+
+#### 인증 생성 방법
+
+- 이메일, 비밀번호을 이용하는 방법
+
+  - `createUserWithEmailAndPassword(auth, email, password)`
+  - UserCredential을 반환받아, 해당 내용으로 user document를 만들 수 있음.
+
+- popup을 이용하는 방법
+
+  - `signInWithPopup(auth, provider)`
+  - 해당 함수를 실행하면 팝업창이 뜨고, 거기서 유저가 소셜 계정을 로그인해서 인증 되면 auth가 생성됨.
+  - provider는 소셜 로그인(google, github등)을 제공하는 객체라고 보면 될 것 같다.
+  - `new GoogleAuthProvider()` 이런식으로 provider를 생성하고, 함수에 제공하면 된다.
+  - 마찬가지로 UserCredential을 반환받아, 해당 내용으로 user document를 만들 수 있음.
+
+- redirection을 이용하는 방법
+
+  - 자세히 설명하진 않겠으나, redirection은 새로운 페이지로 가서 인증하고 오는 방식이라고 보면 된다.
+  - 사용하는 방법이 꽤 달라서, 필요하면 95. Sign In With Redirect를 보자.
+
+- 생성된 auth는 firebase 콘솔의 authentication탭에서 확인 가능하다.
+
+#### collection, document 생성 방법
+
+- 유저 auth를 생성했다면, 해당 정보를 가지고 해당 유저의 데이터(찜 목록, 결제 내역)같은 것들을 생성해야한다.
+- users 컬렉션에 user의 uid를 이름으로 갖는 document와 data를 생성하면 된다.
+
+```js
+export async function createUserDocumentFromAuth(userAuth, additionalInformation = {}) {
+  if (!userAuth) return;
+  // google 팝업으로 부터 auth를 받아옴
+  // auth에 있는 user에 있는 uid(user identifier, unique id)를 document 이름으로 이용하자.
+  // doc은 document 포인터라고 생각하자.
+  const userDocRef = doc(db, "users", userAuth.uid);
+  // userDocRef를 이용하면 해당 document에 읽기, 쓰기등을 할 수 있다.
+  const userSnapshot = await getDoc(userDocRef);
+
+  // 데이터가 존재하지 않는 경우 생성
+  if (!userSnapshot.exists()) {
+    const { displayName, email } = userAuth;
+    const createdDate = new Date();
+
+    try {
+      // setDoc을 이용해 데이터 쓰기를 하자!
+      await setDoc(userDocRef, {
+        displayName,
+        email,
+        createdDate,
+        ...additionalInformation,
+      });
+    } catch (error) {
+      console.log("error creating the user", error.message);
+    }
+  }
+
+  return userDocRef;
+}
+```
+
+- 생성된 collection, document, data는 firebase 콘솔의 Firestore Database에서 확인할 수 있다.
+
+### sign up(로그인)
+
+- 유저가 access token을 받기위한 과정이다.
+- 해당 앱에선 2가지의 방법을 사용했다.
+
+#### sign in 방법
+
+- 이메일, 비밀번호
+
+  - `signInWithEmailAndPassword(auth, email, password)`
+  - 유저생성과 상당히 비슷한 모양새이다.
+
+- popup(구글)
+
+  - `signInWithPopup(auth, googleProvider)`
+  - 사실 이건 회원가입할 때와 똑같다.
+  - 유저 입장에서 보면, 구글 로그인으로 따로 회원가입을 하지 않고, 그냥 로그인하던 것을 생각해보자.
+
+- 성공적으로 로그인을 마치면, 여러 정보를 받을 수 있는데, access token이 그중 하나이다.
+
+## 생각할 점
+
+- firebase에 종속적인 메서드들을 억지로 외우기보단, 원리를 이해하자.
+- auth token, access token같은 키워드들, 인증, 회원가입, 로그인의 과정들.
+- firebase가 아니더라도 다른 서비스를 이용하거나 직접 구현할 때 도움이 될 것이다.
+
+## 코딩 테크닉
+
+- firebase같은 서비스 추상화하여 일종의 인터페이스로 만들기
+- form 필드의 value를 state에 저장하고, 그 state를 기준으로 form 필드를 렌더링 하는 것.
+- button같은 기본적인 컴포넌트를 만들고, props로 타입을 받아 스타일링 적용하기(클래스 이용).
