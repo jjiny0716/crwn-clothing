@@ -183,7 +183,7 @@ import { ReactComponent as CrwnLogo } from "../../assets/crown.svg";
 ### firebase 이용
 
 - [소스코드](../src/util/firebase/firebase.js)로 보자.
-- firebase에서 제공하는 auth나 firestore같은 기능들을 firestore.js로 추상화함.
+- firebase에서 제공하는 auth나 firestore같은 기능들을 firebase.js로 추상화함.
 - 이렇게 함으로써 내 앱 상황에 맞게 커스텀해서 사용이 가능하며, firebase의 어떤 기능의 사용법이 바뀌더라도 firebase.js만 수정하게될 확률이 높다.
 - 앞으로 firebase의 데이터의 접근한다거나 하는 동작은 거의 모두 비동기 함수임을 유의하자.
 

@@ -1,19 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
-import App from './App';
-import { UserProvider } from './Contexts/User';
+import App from "./App";
+import { UserProvider } from "./Contexts/User";
+import { ProductsProvider } from "./Contexts/Products";
+import { CartContextProvider } from './Contexts/CartContext';
 
-import './index.scss'; 
-import reportWebVitals from './reportWebVitals';
+import "./index.scss";
+import reportWebVitals from "./reportWebVitals";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <UserProvider>
-        <App />
+        <ProductsProvider>
+          <CartContextProvider>
+            <App />
+          </CartContextProvider>
+        </ProductsProvider>
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>
