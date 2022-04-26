@@ -124,6 +124,28 @@ return (
 );
 ```
 
+## useNavigate
+
+버튼을 클릭했을 때 경로를 바꾸기 위해 다음과 같이 작성했었다.
+
+```jsx
+<Link to="/checkout">
+  <Button>GO TO CHECKOUT</Button>
+</Link>
+```
+
+- 링크를 이용하지 않고 경로를 바꿀 수 있다.
+- react-router-dom에서 `useNavigate`를 가져와 사용하자.
+- useNavigate가 반환하는 함수는 Link의 기능을 수행하는 함수라고 생각하면 된다.
+
+```jsx
+const navigate = useNavigate();
+const goToCheckout = () => {
+  navigate("/checkout");
+};
+<Button onClick={goToCheckout}>GO TO CHECKOUT</Button>;
+```
+
 ## svg 사용하기
 
 - ReactComponent as svg를 이용해 svg를 리액트 컴포넌트처럼 사용할 수 있다.
@@ -311,3 +333,7 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
 
 - `onAuthStateChanged(auth, callback)`으로 firebase에서 auth에 대한 옵저버 패턴을 사용할 수 있다.
 - 이를 이용해 auth관련된 로직을 UserContext에 몰아줘 깔끔한 관심사 분리를 할 수 있다.
+
+# React Context 활용
+
+## goToNa
