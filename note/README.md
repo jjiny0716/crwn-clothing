@@ -414,3 +414,133 @@ const Category = () => {
 - 왜냐하면 스타일링을 css에 의존하고 있기 때문이다.
 - 조금더 신경쓰고, 선택자를 상세하게 쓰면서 충돌을 줄일 수도 있겠으나, 이보다 더 나은 방법이 존재한다.
 - CSS in JS를 통해 특정 컴포넌트가 독점적으로 갖는 스타일링을 작성할 수 있다.
+
+## 사용법
+
+- styled-components에서 `styled`를 import해야 한다.
+- `styled.tagname` 형식으로 사용한다.
+- scss 문법을 지원하는 것으로 보인다.
+- 결과물은 컴포넌트이다.
+
+```jsx
+export const BaseButton = styled.button`
+  margin: 123px;
+`;
+```
+
+- 이렇게 생성된 컴포넌트를 리액트 컴포넌트처럼 그냥 사용하면 된다.
+- 해당 컴포넌트가 렌더링한 element는 유일한 class를 가지고, 해당 class를 이용해 스타일링을 하기 때문에, 다른 컴포넌트와 스타일링이 충돌하는 것을 막을 수 있다.
+
+## 재사용
+
+- styled-component는 재사용이 가능하다.
+
+```jsx
+// 태그를 전달하지 않고 BaseButton이라는 다른 styled-component를 전달하고 있다.
+export const GoogleSignInButton = styled(BaseButton)`
+  background-color: #4285f4;
+`;
+```
+
+- 위의 `GoogleSignInButton`은 `BaseButton`의 스타일을 가지게 되고, 추가적인 스타일링을 할 수 있다.
+
+## nested
+
+- scss가 그랬던 것처럼, styled-component의 스타일링 안에 다른 styled-component를 선택할 수 있다.
+- 이때, styled-component의 작성 순서를 주의하자.
+- 제일 안쪽에 쓰이는 것부터 작성하면 오류날 일이 없다.
+
+```jsx
+export const DirectoryItemContainer = styled.div`
+  &:hover {
+    cursor: pointer;
+
+    & ${BackgroundImage} {
+      transform: scale(1.1);
+      transition: transform 6s cubic-bezier(0.25, 0.45, 0.45, 0.95);
+    }
+
+    & ${Body} {
+      opacity: 0.9;
+    }
+  }
+`;
+```
+
+- pseudo-element를 사용한 곳 내부에서 다른 element를 지정하고 싶을 때 사용할 수 있는 유일한 방법으로 보인다.
+
+## svg 사용
+
+- svg를 ReactComponent로 불러와 사용했던 것을 기억해보자.
+- 결국 컴포넌트이므로 styled-components로 사용할 수 있다.
+
+```jsx
+import { ReactComponent as ShoppingSVG } from "../assets/shopping-bag.svg";
+
+export const ShoppingIcon = styled(ShoppingSVG)`
+  width: 24px;
+  height: 24px;
+`;
+```
+
+## props 사용
+
+- styled-component에 props를 전달할 수 있다.
+- 이를 이용해 다양한 스타일을 하나의 컴포넌트로 제공할 수 있다.
+
+```jsx
+export const FormInputLabel = styled.label`
+  color: ${subColor};
+  font-size: 16px;
+  font-weight: normal;
+  position: absolute;
+  pointer-events: none;
+  left: 5px;
+  top: 10px;
+  transition: 300ms ease all;
+
+  // destructuring을 이용해 props에서 shrink를 분리해내, shrink 유무에 따라 다른 스타일을 적용
+  ${({ shrink }) => shrink && shrinkLabelStyles}
+`;
+
+// 사용하는 곳
+<FormInputLabel shrink={otherProps.value.length}>{label}</FormInputLabel>;
+```
+
+## h2, p같은거도 따로 만들어?
+
+- h2, p, span같은 것도 일일히 따로 styled-component로 만들어야 할까?
+- 스타일을 모두 똑같이 적용할 생각이라면 굳이 그럴 필요가 없다.
+
+## 변수, mixin, css
+
+- scss에서 변수와 mixin을 사용했었다.
+- styled-components는 JavaScript이므로, 이를 바로 사용할 수 없다.
+- 그렇다면 그냥 js변수로 만들자.
+- mixin은 css라는 것을 이용해야한다.
+
+```scss
+$sub-color: grey;
+$main-color: black;
+
+@mixin shrinkLabel {
+  top: -14px;
+  font-size: 12px;
+  color: $main-color;
+}
+```
+
+```jsx
+// 위의 scss를 js로 변환한다면 아래와 같을 것이다.
+import styled, { css } from "styled-components";
+
+const subColor = "grey";
+const mainColor = "black";
+
+// css를 이용해 css코드를 변수로 만들자.
+const shrinkLabelStyles = css`
+  top: -14px;
+  font-size: 12px;
+  color: ${mainColor};
+`;
+```
