@@ -1,9 +1,9 @@
-import "./CategoryItem.scss";
+import { CategoryContainer } from "./DirectoryItem.styles.jsx";
 
 const CategoryItem = ({ category }) => {
   const { title, imageUrl } = category;
   return (
-    <div className="category-container">
+    <CategoryContainer>
       <div className='background-image' style={{
         backgroundImage: `url(${imageUrl})`,
       }}></div>
@@ -11,7 +11,7 @@ const CategoryItem = ({ category }) => {
         <h2>{title}</h2>
         <p>Shop now</p>
       </div>
-    </div>
+    </CategoryContainer>
   );
 };
 

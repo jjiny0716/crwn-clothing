@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 import FormInput from "./FormInput";
-import Button from './Button';
+import Button, { BUTTON_TYPE_CLASSES } from "./Button";
 
 import { signInWithGooglePopup, signInAuthUserWithEmailAndPassword } from "../util/firebase/firebase";
 
-import "./SignInForm.scss";
+import { SignInContainer } from "./SignInForm.styles.jsx";
 
 const defaultFormFields = {
   email: "",
@@ -27,7 +27,7 @@ const SignInForm = () => {
 
   const signInWithGoogle = async () => {
     const { user } = await signInWithGooglePopup();
-  }
+  };
 
   const handleOnSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +37,11 @@ const SignInForm = () => {
       resetFormFields();
     } catch (error) {
       switch (error.code) {
-        case 'auth/wrong-password':
-          alert('Incorrect password for email');
+        case "auth/wrong-password":
+          alert("Incorrect password for email");
           break;
-        case 'auth/user-not-found':
-          alert('No user associated with this email');
+        case "auth/user-not-found":
+          alert("No user associated with this email");
           break;
         default:
           console.error(error);
@@ -50,18 +50,20 @@ const SignInForm = () => {
   };
 
   return (
-    <div className='sign-up-container'>
+    <SignInContainer>
       <h2>Already have an account?</h2>
       <span>Sign in with your email and password</span>
       <form onSubmit={handleOnSubmit}>
         <FormInput label="Email" type="email" required onChange={handleOnChange} name="email" value={email} />
         <FormInput label="Password" type="password" required onChange={handleOnChange} name="password" value={password} />
-        <div className='buttons-container'>
+        <div className="buttons-container">
           <Button type="submit">SIGN IN</Button>
-          <Button buttonType="google" type="button" onClick={signInWithGoogle}>GOOGLE SIGN IN</Button>
+          <Button buttonType={BUTTON_TYPE_CLASSES.google} type="button" onClick={signInWithGoogle}>
+            GOOGLE SIGN IN
+          </Button>
         </div>
       </form>
-    </div>
+    </SignInContainer>
   );
 };
 

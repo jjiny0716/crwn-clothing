@@ -1,4 +1,6 @@
-.category-container {
+import styled from "styled-components";
+
+export const CategoryContainer = styled.div`
   min-width: 30%;
   height: 240px;
   flex: 1 1 auto;
@@ -8,6 +10,22 @@
   border: 1px solid black;
   margin: 0 7.5px 15px;
   overflow: hidden;
+
+  &:hover {
+    cursor: pointer;
+
+    & .background-image {
+      transform: scale(1.1);
+      transition: transform 6s cubic-bezier(0.25, 0.45, 0.45, 0.95);
+    }
+  }
+
+  .background-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+  }
 
   &:hover {
     cursor: pointer;
@@ -65,4 +83,4 @@
       font-size: 16px;
     }
   }
-}
+`;

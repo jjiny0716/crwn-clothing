@@ -102,6 +102,7 @@ return (
 - Link는 기본적으로 anchor(a) 태그이나, 라우팅을 위한 기능을 수행하며, to = href라고 생각하면 됨.
 - 컴포넌트는 기본적으로 최상위에 하나의 엘리먼트만 있을 수 있고, 여러개를 놓고 싶을 때 최상위에 Fragment를 사용.
 - Fragment는 실제 렌더링될 때 사라진다.
+- Fragment를 `<></>` 이렇게 써도 동일하게 동작한다.
 
 ```jsx
 import { Fragment } from "react";
@@ -334,6 +335,82 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
 - `onAuthStateChanged(auth, callback)`으로 firebase에서 auth에 대한 옵저버 패턴을 사용할 수 있다.
 - 이를 이용해 auth관련된 로직을 UserContext에 몰아줘 깔끔한 관심사 분리를 할 수 있다.
 
-# React Context 활용
+# firebase database
 
-## goToNa
+## SQL database vs NoSQL database
+
+- SQL database는 매우 엄격하다.
+- 대표적인게 데이터가 특정 모양으로만 있도록 하는 것.
+- 반면 NoSQL database는 매우 자유로움.
+- 데이터의 구성이 특정 규칙이나 구조에 구애받지 않는다.
+- firebase는 NoSQL database임.
+- 데이터가 inconsistent할 수 있으니 주의해야한다.
+
+## useEffect async
+
+- useEffect에 사용되는 함수는 함수를 반환해야한다.
+- async 함수는 Promise를 반환하므로 쓰면 안된다.
+- 그렇다면 함수 내에서 async함수를 선언하고 바로 호출하면 된다.
+
+```jsx
+useEffect(() => {
+  const getCategoryMap = async () => {
+    setCategoriesMap(await getCategoriesAndDocuments());
+  };
+  getCategoryMap();
+}, []);
+```
+
+## 중첩 라우팅
+
+- 와일드카드(\*)을 링크에 붙이면 해당 위치에 어떤 링크가 대응되던지 해당 element를 렌더링한다.
+
+```jsx
+<Routes>
+  <Route path="/" element={<Navigation />}>
+    <Route index element={<Home />} />
+    // shop뒤에 hats, jackets등 뭐가 오던간에 ShopPage를 렌더링한다.
+    <Route path="shop/*" element={<ShopPage />} />
+    <Route path="auth" element={<AuthenticationPage />} />
+    <Route path="checkout" element={<CheckoutPage />} />
+  </Route>
+</Routes>
+```
+
+- 이후, 카테고리에 맞는 페이지를 렌더링하고 싶을 때, 카테고리 루트를 일일히 전부 만들어야 할까?
+- 물론 그렇게도 가능하지만, url을 변수처럼 사용하는 방법이 있다.
+- `<Route path=':category' element={<Category/>}></Route>` -> category를 변수처럼 사용할 수 있다.
+- Category 컴포넌트에서 해당 category를 변수처럼 사용하려면, `useParams()`를 사용하자.
+- 이후 받아온 url를 이용해 해당 컴포넌트의 UI를 렌더링하도록 하면 될 것이다.
+
+```jsx
+import { useContext, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+
+import ProductCard from "../../components/ProductCard";
+import { CategoriesContext } from "../../Contexts/Categories";
+
+import "./Category.scss";
+
+const Category = () => {
+  const { category } = useParams();
+  const { categoriesMap } = useContext(CategoriesContext);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    setProducts(categoriesMap[category]);
+  }, [category, categoriesMap]);
+
+  // products && ~는 Category가 처음 마운트되었을 때, categoriesMap이 빈 객체일 수 있기 때문이다.
+  // 왜냐면 비동기호출로 categoriesMap의 내용을 채우기 때문이다.
+  // 그래서 products가 undefined인 타이밍이 생기기 때문에, safeguard코드를 작섣해야 한다.
+  return <div className="category-container">{products && products.map((product) => <ProductCard key={product.id} product={product} />)}</div>;
+};
+```
+
+# CSS in JS + Styled Components
+
+- 프로젝트가 커질 수록, 스타일링이 다른 컴포넌트와 충돌할 가능성이 커진다.
+- 왜냐하면 스타일링을 css에 의존하고 있기 때문이다.
+- 조금더 신경쓰고, 선택자를 상세하게 쓰면서 충돌을 줄일 수도 있겠으나, 이보다 더 나은 방법이 존재한다.
+- CSS in JS를 통해 특정 컴포넌트가 독점적으로 갖는 스타일링을 작성할 수 있다.
