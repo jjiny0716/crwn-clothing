@@ -544,3 +544,54 @@ const shrinkLabelStyles = css`
   color: ${mainColor};
 `;
 ```
+
+# Reducers
+
+- Reducer는 상태관리의 하나의 패턴
+- Reducer는 값들을 가지고 있고, Action을 받을 수 있다.
+- Reducer는 정해진 Action들로만 내부의 상태를 바꿀 수 있다.
+
+```jsx
+// action type을 정의
+export const USER_ACTION_TYPES = Object.freeze({
+  SET_CURRENT_USER: Symbol("setCurrentUser"),
+});
+
+// 리듀서는 이전 state와 action을 받는 함수이다.
+// state와 action을 이용해 새로운 상태를 만들어 반환한다.
+const userReducer = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case USER_ACTION_TYPES.SET_CURRENT_USER:
+      return {
+        currentUser: payload,
+      };
+    default:
+      throw new Error(`Unhandled type of action ${type} in userReducer`);
+  }
+};
+
+// 초기 상태
+const INITIAL_STATE = {
+  currnetUser: null,
+};
+
+export const UserProvider = ({ children }) => {
+  // useReducer는 Reducer와 초기값을 받는다.
+  // 상태와 dispatch 함수를 반환한다.
+  const [{ currentUser }, dispatch] = useReducer(userReducer, INITIAL_STATE);
+  const setCurrentUser = (user) => {
+    // dispatch에 액션 타입과 payload를 전달하여 상태를 바꾼다.
+    dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: user });
+  };
+};
+```
+
+## reducer에 비즈니스 로직을 넣지 말자
+
+- reducer는 단순히 state와 action을 받아 새 상태를 만들어내는 함수이다.
+- 하지만 여기에 비즈니스 로직이 들어가면, 읽기 매우 힘든 코드가 된다.
+- payload를 외부에서 적절하게 생성해 넘겨주는 식으로 코드를 구성하자.
+- reducer에서 payload를 갖고 이것 저것 하지 말고, 단순히 값을 설정하기만 하는게 깔끔하다.
+
