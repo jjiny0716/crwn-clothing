@@ -595,3 +595,71 @@ export const UserProvider = ({ children }) => {
 - payload를 외부에서 적절하게 생성해 넘겨주는 식으로 코드를 구성하자.
 - reducer에서 payload를 갖고 이것 저것 하지 말고, 단순히 값을 설정하기만 하는게 깔끔하다.
 
+# Redux
+
+## Redux vs Context: Access
+
+- ContextProvider는 결국 컴포넌트이고, provider로 감싼 내부에서만 데이터에 접근할 수 있다.
+- => 데이터에 접근할 컴포넌트를 지정해줄 수 있다. (특정 컴포넌트만 Provider로 감싸면 된다)
+- 반면 Redux는 global state management라고 한다.
+- 우리에게 선택권은 없다. 우리 앱의 모든 컴포넌트에서 Redux store에 접근할 수 있다.
+
+## Redux vs Context: Data Flow
+
+- Context는 각자 reducer를 가진다.
+- Redux store는 여러개의 reducer를 하나로 합쳐 1개의 Root Reducer를 가지고, 하나의 dispatch 함수를 가진다.
+
+## 설치
+
+- `yarn add redux react-redux redux-logger`
+- redux-logger는 필수는 아니지만, 스토어에서 어떤 일이 일어나는지 볼 수 있어 유용함.
+
+## 파일 구조(보일러플레이트)
+
+- store, root-reducer가 기본으로 깔린다.
+- store는 createStore로 store를 생성해 export한다.
+- root-reducer는 combineReducers를 이용해 우리가 작성할 reducer들을 하나로 묶는 역할을 한다.
+- 그다음 리듀서를 담을 폴더를 생성한다.
+- 폴더 안에는 reducer, action, type, selector가 들어간다.
+- action은 dispatch와 사용되며 데이터 변경, selector는 useSelector와 사용되며 데이터 접근용.
+- reducer는 초기 상태와 리듀서를 갖는다.
+- type은 action과 reducer에서 사용되는 action의 타입을 정의한다.
+- [소스코드](../src/store/)를 보면 더 자세히 알 수 있다.
+
+## Context를 Redux로 전환하기
+
+- action types, initial state, reducer를 그대로 가져올 수 있다.
+- 하지만 useReducer훅을 이용하지 않기 때문에, state의 default parameter로 initial state를 설정하자.
+- 또한 액션을 해당 리듀서에서 찾지 못했다면, 오류 대신 state를 그대로 반환하면 된다.
+- context에서 useEffect를 이용해 데이터를 가져왔던 것은 해당 데이터에 처음으로 접근하는 컴포넌트로 옮겨주면 된다.
+
+## useSelect가 하는 것
+
+- useSelect를 사용한 컴포넌트는, store(root reducer)가 업데이트될 때 리렌더링된다.
+- 그러면, 해당 컴포넌트와 관계없는 데이터가 변경되어도 리렌더링된다.
+
+## 미들웨어
+
+- 컴포넌트가 dispatch를 했을 때 redux store 대신 middleware에 먼저 도착함.
+- middleware중 대표적인게 redux-logger이다.
+
+## Reselect 라이브러리
+
+- React는 상태가 변경될 때 리렌더링을 한다.
+- 상태 변경은 `Object.is()` 메서드로 감지한다고 한다.
+- 문제는, 객체는 내용물이 아니라 메모리 주소를 이용해서 동등비교를 하게 된다.
+- 그렇다면 내용물이 동일하더라도 새로운 메모리 주소를 사용했을 때 리렌더링을 하게 된다.
+- 또, 리렌더링을 할 때 selector가 다시 호출된다.
+- selector내부 로직의 비용이 높은 경우에 성능 문제가 생길 수 있다.
+- reselector는 인자가 하나이상 변경되었을 때, 내부 로직을 다시 실행한다.
+- 인자가 변경되지 않았다면, 이전에 기억해두었던 값을 그대로 반환한다.
+- 그렇다면 selector의 복잡한 로직을 다시 실행할 필요가 없고, 값도 이전과 동일하므로 리렌더링도 되지 않는다.
+
+## 패턴
+
+- reducer, action, types, selector파일을 분리하여 사용하자.
+- reducer에 비즈니스 로직을 넣지 않는다.
+- reducer엔 기본적인 데이터만 저장한다. ex) cartItems
+- action, selector쪽에 비즈니스 로직을 작성한다.
+- 추가적인 데이터를 사용해야 한다면, selector에서 reducer의 데이터를 변형해서 제공하는 식이다.
+- action 생성 함수를 제공함으로써 안전하게 dispatch하자.
