@@ -645,6 +645,7 @@ export const UserProvider = ({ children }) => {
 
 ## Reselect 라이브러리
 
+- `yarn add reselect`로 설치
 - React는 상태가 변경될 때 리렌더링을 한다.
 - 상태 변경은 `Object.is()` 메서드로 감지한다고 한다.
 - 문제는, 객체는 내용물이 아니라 메모리 주소를 이용해서 동등비교를 하게 된다.
@@ -663,3 +664,63 @@ export const UserProvider = ({ children }) => {
 - action, selector쪽에 비즈니스 로직을 작성한다.
 - 추가적인 데이터를 사용해야 한다면, selector에서 reducer의 데이터를 변형해서 제공하는 식이다.
 - action 생성 함수를 제공함으로써 안전하게 dispatch하자.
+
+## Redux-Persist
+
+- `yarn add redux-persist`로 설치
+- reducer state를 localStorage 또는 session에 저장
+- 저장된 정보를 로딩하여 사용하기 때문에 새로고침해도 이전 상태를 활용할 수 있음.
+
+```jsx
+import { persistStore, persistReducer } from "redux-persist";
+// localStorage 사용
+import storage from "redux-persist/lib/storage";
+
+// 설정
+const persistConfig = {
+  key: "root",
+  storage,
+  // blacklist나, whitelist를 사용 가능.
+  blacklist: ["user"],
+};
+
+// 해당 리듀서를 이용해 store를 만들자.
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+export const store = createStore(persistedReducer, undefined, componsedEnhancers);
+
+export const persistor = persistStore(store);
+
+// index.js
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store/store";
+
+// PersistGate로 App 컴포넌트를 감싸줘야 한다.
+// 이렇게 함으로써 APP의 렌더링을 데이터를 얻을 때 까지 지연시킬 수 있다.
+// loading은 아마 APP렌더링 전 보여줄 컴포넌트를 전달하는 것으로 추측된다.
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
+  </React.StrictMode>
+);
+```
+
+## Redux-Devtools
+
+- 앱의 상태가 바뀔때를 기록해주고, 이를 돌려볼 수 있게 해준다.
+- 이외에도 유용한 기능이 아주 많아보인다.
+- Chrome extension으로 설치해야한다. [링크](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd/related?hl=ko)
+- 그다음 간단한 코드가 필요하다.
+
+```js
+// enhancer를 compose하는 함수를 골라아한다.
+// 아래 코드는 개발환경에서만 동작하도록 하는 코드가 포함되어 있는데, 다양한 곳에서 응용해볼 수 있겠다.
+const composeEnhancer = (process.env.NODE_ENV !== "production" && window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+```
+
+- 이후 앱을 동작시키면, chrome extension에 있는 Redux DevTools를 사용해볼 수 있다.
