@@ -724,3 +724,51 @@ const composeEnhancer = (process.env.NODE_ENV !== "production" && window && wind
 ```
 
 - 이후 앱을 동작시키면, chrome extension에 있는 Redux DevTools를 사용해볼 수 있다.
+
+## Redux-Thunk
+
+- 비동기 작업을 위한 미들웨어
+- 함수를 디스패치 해서 사용
+- 비동기 관련 로직을 컴포넌트에서 분리해낼 수 있음
+
+### 예시
+
+```jsx
+const CATEGORIES_INITIAL_STATE = {
+  categories: [],
+  // isLoading과 error가 중요
+  isLoading: false,
+  error: null,
+};
+
+export const categoriesReducer = (state = CATEGORIES_INITIAL_STATE, action = {}) => {
+  const { type, payload } = action;
+
+  // 3개의 type과 어떤 형태로 데이터를 반환하는지를 기억하자.
+  switch (type) {
+    case CATEGORIES_ACTION_TYPE.FETCH_CATEGOIRES_START:
+      return { ...state, isLoading: true };
+    case CATEGORIES_ACTION_TYPE.FETCH_CATEGOIRES_SUCCESS:
+      return { ...state, categories: payload, isLoading: false };
+    case CATEGORIES_ACTION_TYPE.FETCH_CATEGOIRES_FAILED:
+      return { ...state, error: payload, isLoading: false };
+    default:
+      return state;
+  }
+};
+
+// 함수를 리턴하는 함수인데, dispath를 받아 비동기 함수에서 어떻게 사용하는지
+// 형태를 기억해보자.
+export const fetchCategoriesAsync = () => async (dispatch) => {
+  // isLoading이 true로 바뀌겠지?
+  dispatch(fetchCategoiresStart());
+
+  // 비동기 작업의 결과에 따라 다른 action을 dispatch를 하는 것
+  try {
+    const categories = await getCategoriesAndDocuments();
+    dispatch(fetchCategoiresSuccess(categories));
+  } catch (error) {
+    dispatch(fetchCategoiresFailed(error));
+  }
+};
+```

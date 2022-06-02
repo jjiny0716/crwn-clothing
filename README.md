@@ -1,3 +1,8 @@
+# Crwn clothing
+
+- 쇼핑몰을 주제로 한 리액트 연습용 프로젝트입니다.
+- [노트](./note/README.md)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
