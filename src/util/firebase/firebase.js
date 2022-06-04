@@ -73,13 +73,13 @@ export async function createUserDocumentFromAuth(userAuth, additionalInformation
     }
   }
 
-  return userDocRef;
+  return userSnapshot;
 }
 
 // email과 password를 이용해 user를 생성하고 로그인할 수 있다.
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
-
+  
   return await createUserWithEmailAndPassword(auth, email, password);
 };
 

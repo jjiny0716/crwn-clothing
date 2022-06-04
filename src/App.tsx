@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { Routes, Route } from "react-router-dom";
-import { onAuthStateChangedListener, createUserDocumentFromAuth, getCurrentUser } from "./util/firebase/firebase";
+import { useDispatch } from 'react-redux';
+import { getCurrentUser } from "./util/firebase/firebase";
 
 import Navigation from "./routes/Navigation/Navigation";
 import Home from "./routes/Home/Home";
@@ -9,13 +9,14 @@ import AuthenticationPage from "./routes/AuthenticationPage/AuthenticationPage";
 import ShopPage from "./routes/ShopPage/ShopPage";
 import CheckoutPage from "./routes/CheckoutPage/CheckoutPage";
 
-import { setCurrentUser } from "./store/user/user.action";
+import { checkUserSession } from "./store/user/user.action";
+
 
 const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getCurrentUser();
+    dispatch(checkUserSession());
   }, []);
 
   return (
