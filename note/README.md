@@ -9,6 +9,7 @@
 - npx create-react-app으로 리액트 프로젝트를 설치할 수 있다.
 - npx 명령어는 패키지를 다운받아 실행한 후 삭제함.
 - 일회성 명령이므로 패키지 관리(위치, 버전)등을 신경쓸 필요가 없다.
+  action = {} as CategoriesAction
 
 ## sass
 
@@ -790,3 +791,64 @@ export const fetchCategoriesAsync = () => async (dispatch) => {
 - saga는 복잡하지만 Action을 깔끔하게 디자인할 수 있고, 테스트에 용이함.
 - 둘다 장단점이 있으므로, 잘 선택해서 서비스에 적용해보자.
 - saga 너무 어려웠다... 나중에 필요할 때 다시 공부해야 잘 들어올 것 같다.
+
+## redux를 타입스크립트로 전환하기
+
+- 기존의 type들을 담은 object를 enum으로 전환하면, 해당 타입안에 있는 속성만 사용하도록 강제 가능
+- 기존에 주고받던 데이터(object)와 reducer의 상태 등의 형태를 type으로 만들어 사용하자.
+- actionCreator이 반환하는 Action도 정확한 type으로 만들어 명시할 것.
+
+### reducer의 action type을 무엇으로 설정할 것인가
+
+- 해당 reducer가 받는 action들의 union type을 받아오면 일단은 성공.
+- `action = {} as CategoriesAction` 이런 식으로 하는 것인데, 문제가 있다.
+- 생각해보면, reducer는 어떠한 action이던지 받을 수 있고, 해당 reducer가 처리할 수 있는 action type이 아닌 경우에는 state를 그대로 반환한다.
+- 그렇다면, action을 일단 AnyAction으로 type narrowing을 이용해 특정 타입으로 좁혀보자.
+
+```ts
+// action creator 받는 함수
+type Matchable<AC extends () => AnyAction> = AC & {
+  type: ReturnType<AC>["type"];
+  match(action: AnyAction): action is ReturnType<AC>;
+};
+
+export function withMatcher<AC extends () => AnyAction & { type: string }>(actionCreator: AC): Matchable<AC>;
+
+export function withMatcher<AC extends (...args: any[]) => AnyAction & { type: string }>(actionCreator: AC): Matchable<AC>;
+
+export function withMatcher(actionCreator: Function) {
+  const type = actionCreator().type;
+  return Object.assign(actionCreator, {
+    type,
+    match(action: AnyAction) {
+      return action.type === type;
+    },
+  });
+}
+```
+
+- 핵심은, actionCreator에 자신이 반환하는 타입과 전달받은 action의 타입이 일치하는지 검사할 수 있는 `match`라는 함수를 추가하는 것.
+- 이제 actionCreator를 만들 땐 `withMatcher()`로 감싸 생성하자.
+- 이후 reducer에서 actionCreator들의 `match()`를 이용해 검사 및 type narrowing을 할 수 있다.
+
+```ts
+export const categoriesReducer = (state = CATEGORIES_INITIAL_STATE, action = {} as AnyAction): CategoriesState => {
+  // 기존의 switch를 if문들로 바꿔주었다.
+  if (fetchCategoiresStart.match(action)) {
+    return { ...state, isLoading: true };
+  }
+
+  if (fetchCategoiresSuccess.match(action)) {
+    // type narrowing이 되었기 때문에, action내부의 payload를 사용할 수 있다.
+    return { ...state, categories: action.payload, isLoading: false };
+  }
+
+  if (fetchCategoiresFailed.match(action)) {
+    return { ...state, error: action.payload, isLoading: false };
+  }
+
+  return state;
+};
+```
+
+- enum, overloading, union type, type narrowing 키워드를 기억하자.
