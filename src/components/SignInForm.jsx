@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import FormInput from "./FormInput";
 import Button, { BUTTON_TYPE_CLASSES } from "./Button";
 
-import { emailSignInstart, googleSignInStart } from '../store/user/user.action';
+import { emailSignInStart, googleSignInStart } from '../store/user/user.action';
 
 import { SignInContainer } from "./SignInForm.styles.jsx";
 
@@ -35,7 +35,7 @@ const SignInForm = () => {
     e.preventDefault();
 
     try {
-      dispatch(emailSignInstart());
+      dispatch(emailSignInStart());
       resetFormFields();
     } catch (error) {
       switch (error.code) {
