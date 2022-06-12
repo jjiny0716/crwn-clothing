@@ -1,5 +1,11 @@
 import DirectoryItem from './DirectoryItem';
-import  { DirectoryContainer } from "./Directory.styles.jsx";
+import { DirectoryContainer } from "./Directory.styles";
+
+export type DirectoryCategory = {
+  title: string;
+  imageUrl: string;
+  route: string;
+}
 
 const categories = [
   {

@@ -6,9 +6,3 @@ display: flex;
 flex-wrap: wrap;
 justify-content: space-between;
 `
-
-// .title {
-//   font-size: 38px;
-//   margin-bottom: 25px;
-//   text-align: center;
-// }

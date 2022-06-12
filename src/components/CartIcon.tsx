@@ -9,7 +9,7 @@ const CartIcon = () => {
   const isCartOpen = useSelector(selectIsCartOpen);
   const cartCount = useSelector(selectCartCount);
 
-  const onClickHandler = (e) => {
+  const onClickHandler = () => {
     dispatch(setIsCartOpen(!isCartOpen));
   };
 
