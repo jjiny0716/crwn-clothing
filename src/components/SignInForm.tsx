@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { AuthError, AuthErrorCodes } from 'firebase/auth';
 import { useDispatch } from 'react-redux';
 
 import FormInput from "./FormInput";
@@ -6,7 +7,7 @@ import Button, { BUTTON_TYPE_CLASSES } from "./Button";
 
 import { emailSignInStart, googleSignInStart } from '../store/user/user.action';
 
-import { SignInContainer } from "./SignInForm.styles.jsx";
+import { SignInContainer } from "./SignInForm.styles";
 
 const defaultFormFields = {
   email: "",
@@ -22,7 +23,7 @@ const SignInForm = () => {
     setFormFields(defaultFormFields);
   };
 
-  const handleOnChange = (event) => {
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormFields({ ...formFields, [name]: value });
   };
@@ -31,18 +32,18 @@ const SignInForm = () => {
     dispatch(googleSignInStart());
   };
 
-  const handleOnSubmit = async (e) => {
+  const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      dispatch(emailSignInStart());
+      dispatch(emailSignInStart(email, password));
       resetFormFields();
     } catch (error) {
-      switch (error.code) {
-        case "auth/wrong-password":
+      switch ((error as AuthError).code) {
+        case AuthErrorCodes.INVALID_PASSWORD:
           alert("Incorrect password for email");
           break;
-        case "auth/user-not-found":
+        case AuthErrorCodes.USER_DELETED:
           alert("No user associated with this email");
           break;
         default:

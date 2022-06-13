@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 
 import CategoriesPreview from '../CategoriesPreview/CategoriesPreview';
-import Category from '../Category/Category.tsx';
+import Category from '../Category/Category';
 import { fetchCategoiresStart } from '../../store/categories/categories.action';
 
 import "./ShopPage.scss";

@@ -1,7 +1,7 @@
 import SignInForm from '../../components/SignInForm';
 import SignUpForm from '../../components/SignUpForm';
 
-import {AuthenticationContainer} from "./AuthenticationPage.styles.jsx"
+import {AuthenticationContainer} from "./AuthenticationPage.styles"
 
 const AuthenticationPage = () => {
   return (

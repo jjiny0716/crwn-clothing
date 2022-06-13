@@ -858,3 +858,8 @@ export const categoriesReducer = (state = CATEGORIES_INITIAL_STATE, action = {} 
 - 라이브러리에서 제공된 함수에 마우스를 갖다 대면 어떤 타입을 받고 어떤 타입을 리턴하는지 상세히 나와있다.
 - 라이브러리에서 제공하는 기본 type들이 있는지 잘 살펴보고 활용할 것.
 - 너무 명시적으로 타입들을 전부 작성하려 하지 않아도, 타입 추론이 되어서 오류가 나지 않는 상황이라면, 그것을 활용해도 좋다.
+
+# react typescript로 전환하기
+
+- 이미 있는 react 컴포넌트(버튼 같은 것)을 이용한 컴포넌트를 작성할 때, `ButtonHTMLAttributes<HTMLButtonElement>`같은 기본 props를 intersection type으로 같이 사용해야 한다.
+- styled components에 generic으로 props를 전달 가능

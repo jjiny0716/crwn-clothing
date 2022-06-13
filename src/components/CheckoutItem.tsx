@@ -3,8 +3,13 @@ import { selectCartItems } from '../store/cart/cart.selector';
 import { addItemToCart, removeItemFromCart, clearItemFromCart } from '../store/cart/cart.action';
 
 import { CheckoutItemContainer } from "./CheckoutItem.styles";
+import { CartItem } from '../store/cart/cart.types';
 
-const CheckoutItem = ({ cartItem }) => {
+type CheckoutItemProps = {
+  cartItem: CartItem;
+}
+
+const CheckoutItem = ({ cartItem }: CheckoutItemProps) => {
   const { name, imageUrl, price, quantity } = cartItem;
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);

@@ -3,7 +3,7 @@ import { selectCartTotal, selectCartItems } from '../../store/cart/cart.selector
 
 import CheckoutItem from "../../components/CheckoutItem";
 
-import { CheckoutContainer } from "./CheckoutPage.styles.jsx";
+import { CheckoutContainer } from "./CheckoutPage.styles";
 
 const CheckoutPage = () => {
   const cartItems = useSelector(selectCartItems);
